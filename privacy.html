@@ -9,55 +9,43 @@
 
   <style>
     :root {
-      --bg: #f7f7f8;
-      --bg-elevated: #fff;
-      --text: #111;
-      --text-muted: #6b7280;
-      --text-strong: #1f2937;
-      --border: #e5e7eb;
-      --border-soft: #f3f4f6;
-      --primary: #dc2626;
-      --primary-hover: #b91c1c;
-      --accent: #2563eb;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0b0b0c;
-        --bg-elevated: #18181b;
-        --text: #f4f4f5;
-        --text-muted: #a1a1aa;
-        --text-strong: #e4e4e7;
-        --border: #27272a;
-        --border-soft: #1f1f23;
-        --primary: #ef4444;
-        --primary-hover: #dc2626;
-        --accent: #60a5fa;
-      }
+      --ink: #0f0f0f;
+      --ink-2: #1b1b1b;
+      --text: #ececec;
+      --text-strong: #d6d6d6;
+      --muted: #9a9a9a;
+      --line: #2a2a2a;
+      --red: #ef4444;
+      --f-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --f-mono: var(--f-display);
+      color-scheme: dark;
     }
     *, *::before, *::after { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
-      font-size: 16px;
+      font-family: var(--f-display);
+      font-size: 17px;
       line-height: 1.65;
-      color: var(--text);
-      background: var(--bg);
+      color: var(--text-strong);
+      background: var(--ink);
       -webkit-font-smoothing: antialiased;
     }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    a { color: var(--text); text-underline-offset: 3px; }
+    a:hover { color: #fff; }
 
     nav {
-      border-bottom: 1px solid var(--border);
-      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      background: rgba(13, 12, 11, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       position: sticky;
       top: 0;
       z-index: 10;
     }
     .nav-inner {
-      max-width: 760px;
+      max-width: 820px;
       margin: 0 auto;
-      padding: 14px 24px;
+      padding: 14px clamp(16px, 4vw, 24px);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -66,85 +54,99 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      font-weight: 700;
-      font-size: 17px;
+      font-weight: 600;
+      font-size: 16px;
       color: var(--text);
       text-decoration: none;
     }
     .nav-logo img { width: 28px; height: 28px; border-radius: 6px; }
     .nav-back {
-      color: var(--text-muted);
-      font-size: 14px;
+      font-family: var(--f-mono);
+      font-size: 13px;
+      color: var(--muted);
       text-decoration: none;
     }
     .nav-back:hover { color: var(--text); }
 
     main {
-      max-width: 760px;
+      max-width: 820px;
       margin: 0 auto;
-      padding: 48px 24px 80px;
+      padding: 72px clamp(16px, 4vw, 24px) 96px;
     }
 
     h1 {
-      font-size: 36px;
-      font-weight: 700;
-      margin: 0 0 8px;
-      letter-spacing: -0.02em;
+      font-size: clamp(36px, 6vw, 52px);
+      font-weight: 650;
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+      color: var(--text);
+      margin: 0 0 16px;
     }
     .updated {
-      color: var(--text-muted);
-      font-size: 14px;
-      margin: 0 0 36px;
+      font-family: var(--f-mono);
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0 0 40px;
     }
     h2 {
-      font-size: 22px;
-      font-weight: 700;
-      margin: 40px 0 12px;
-      letter-spacing: -0.01em;
+      font-size: clamp(21px, 2.4vw, 25px);
+      font-weight: 650;
+      line-height: 1.1;
+      color: var(--text);
+      margin: 56px 0 14px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
     }
     h3 {
-      font-size: 17px;
-      font-weight: 600;
-      margin: 24px 0 8px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 28px 0 8px;
     }
     p, ul { margin: 0 0 14px; }
     ul { padding-left: 22px; }
     li { margin-bottom: 6px; }
+    li::marker { color: var(--muted); }
+    strong { color: var(--text); }
 
     .callout {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: 6px;
-      padding: 16px 20px;
-      margin: 20px 0;
-      color: var(--text-strong);
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--red);
+      border-radius: 4px;
+      padding: 18px 22px;
+      margin: 24px 0;
     }
-    .callout strong { color: var(--text); }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 16px 0;
-      font-size: 14.5px;
+      margin: 18px 0;
+      font-size: 15px;
+      display: block;
+      overflow-x: auto;
     }
     th, td {
-      border: 1px solid var(--border);
-      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 14px 12px 0;
       text-align: left;
       vertical-align: top;
     }
     th {
-      background: var(--bg-elevated);
+      font-family: var(--f-mono);
+      font-size: 11.5px;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
     }
 
     footer {
-      border-top: 1px solid var(--border);
-      padding: 24px;
+      border-top: 1px solid var(--line);
+      padding: 32px 24px;
       text-align: center;
-      color: var(--text-muted);
-      font-size: 14px;
+      font-family: var(--f-mono);
+      font-size: 13px;
     }
   </style>
 </head>
@@ -154,7 +156,7 @@
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
-      <img src="icon-128.png" alt="SubClipper" />
+      <img src="icon-128.png" alt="" />
       SubClipper
     </a>
     <a href="index.html" class="nav-back">← Back to site</a>
@@ -163,14 +165,14 @@
 
 <main>
   <h1>Privacy Policy</h1>
-  <p class="updated">Last updated: <span id="updated-date">June 19, 2026</span></p>
+  <p class="updated">Last updated: <span id="updated-date">October 22, 2026</span></p>
 
   <p>
-    This policy explains what data the SubClipper browser extension and its supporting backend services collect, how that data is used, and your rights regarding it. We've kept it short and plain — SubClipper collects very little data, and what it does collect is used only to make the extension work.
+    This policy explains what data the SubClipper browser extension and its backend services collect, how that data is used, and your choices about it. It applies to SubClipper version 1.1.0 and later. We've kept it short and plain.
   </p>
 
   <div class="callout">
-    <strong>Short version:</strong> We collect your email address (to track your monthly quota) and cropped subtitle frames (to run OCR on them). Frames are not stored. Translation happens entirely in your browser, so translated text never leaves your device. We do not sell or share your data.
+    <strong>Short version:</strong> You don't need an account or an email to use SubClipper. The extension uses a random install ID instead. When you capture or extract subtitles, the cropped subtitle area of the video is sent to our server for text recognition and then discarded. We also collect anonymous usage events to improve the product. If you buy hours, Stripe handles the payment and gives us the receipt email so we can restore your hours if you lose them. Translation runs entirely in your browser. We don't sell your data or show ads.
   </div>
 
   <h2>1. What we collect</h2>
@@ -185,106 +187,111 @@
     </thead>
     <tbody>
       <tr>
-        <td><strong>Email address</strong></td>
-        <td>You provide it via the ExtensionPay signup flow when you first install the extension.</td>
-        <td>Identifies your account and tracks your monthly usage quota.</td>
+        <td><strong>Install ID</strong></td>
+        <td>A random identifier the extension creates when it's installed. It's stored in Chrome's synced extension storage, so it follows your Chrome profile to your other computers if you use Chrome sync. It's sent with requests to our server. It isn't derived from anything about you.</td>
+        <td>Identifies your installation so your free monthly allowance and any hours you buy work. Ties anonymous usage events together. Shown in the extension as your "support ID".</td>
       </tr>
       <tr>
         <td><strong>Cropped subtitle frames</strong></td>
-        <td>When you actively click "Capture" or run extraction, the cropped subtitle region of the video is sent to our OCR backend.</td>
-        <td>OCR (optical character recognition) — extracting the text shown in the subtitle.</td>
+        <td>Only when you click "Capture Current Frame" or run extraction: the subtitle region of the video (not the whole video) is sent to our server.</td>
+        <td>Text recognition (OCR): reading the subtitle text so it can be shown, translated, and exported.</td>
       </tr>
       <tr>
         <td><strong>Usage counters</strong></td>
-        <td>Each successful capture and each second of extraction is counted server-side, keyed by your email.</td>
-        <td>Enforcing your plan's monthly quota.</td>
+        <td>Our server counts the time you spend extracting and the number of single-frame captures, keyed by your install ID.</td>
+        <td>Enforcing the free monthly allowance and deducting purchased hours.</td>
       </tr>
       <tr>
-        <td><strong>Subscription status</strong></td>
-        <td>Provided by ExtensionPay when you upgrade or cancel.</td>
-        <td>Determining which plan tier you have access to.</td>
+        <td><strong>Usage events</strong></td>
+        <td>The extension sends short, anonymous events about how it's used: for example, opening the side panel, starting extraction, how long the engine took to start, when the first subtitle appeared, translator load time, walkthrough progress, viewing the "Get more hours" screen, and clicking Buy. Events include your install ID, the extension version, the languages you selected, and timings. When you open the side panel, we record the site's name only if it's a well-known video site (for example "youtube.com"); every other site is recorded as "other". We never record page addresses, page titles, or what you watch.</td>
+        <td>Understanding where people get stuck (for example, slow start-up) and which sites people want supported, so we can improve SubClipper.</td>
       </tr>
       <tr>
-        <td><strong>User preferences</strong></td>
+        <td><strong>Purchase records</strong></td>
+        <td>When you buy an hour pack, Stripe sends us a confirmation containing the pack, amount, time of purchase, and the email address you entered for your receipt. We link it to your install ID.</td>
+        <td>Adding the purchased hours to your installation, and restoring them if you reinstall or switch computers and ask us to.</td>
+      </tr>
+      <tr>
+        <td><strong>Uninstall feedback</strong></td>
+        <td>When you uninstall, Chrome opens a short survey page on our site. We record that the installation was removed (install ID and version), plus the reason and comment you choose to submit, if any.</td>
+        <td>Learning why people leave so we can fix it.</td>
+      </tr>
+      <tr>
+        <td><strong>Older accounts only</strong></td>
+        <td>If you signed up with an email through ExtensionPay before version 1.1.0, the extension sends your ExtensionPay account key to our server, and we ask ExtensionPay which email and plan it belongs to.</td>
+        <td>Keeping your existing account, plan, and usage working. Usage events from these accounts may include a one-way, salted hash of the email, never the email itself.</td>
+      </tr>
+      <tr>
+        <td><strong>Preferences</strong></td>
         <td>Stored locally in your browser via <code>chrome.storage</code>.</td>
-        <td>Remembering your selected source language, translation target, and theme.</td>
+        <td>Remembering your languages, theme, subtitle region, and whether you've seen the walkthrough.</td>
       </tr>
     </tbody>
   </table>
 
   <h2>2. What we don't collect</h2>
-  <p>To be explicit, SubClipper does not collect any of the following:</p>
   <ul>
-    <li>Your name, address, phone number, or any other personal identifier beyond email</li>
-    <li>Payment or financial information (see "Third parties" below — payments are handled by ExtensionPay on a separate domain)</li>
-    <li>Passwords, security questions, or other authentication information</li>
-    <li>Your browsing history or list of visited pages</li>
-    <li>The full video you're watching — only the cropped subtitle region, sent only when you actively use the extension</li>
-    <li>Audio, GPS location, or any sensor data</li>
-    <li>Keystroke logs, mouse movement, or other analytics tracking</li>
+    <li>No account, name, address, or phone number. You can use SubClipper without giving us any personal information.</li>
+    <li>No payment card details. Payments are entered on Stripe's checkout page and never reach the extension or our server.</li>
+    <li>No browsing history. The only site information we record is the name of a well-known video site when you open the side panel (see "Usage events").</li>
+    <li>No full videos, audio, or screenshots of anything other than the subtitle region, and only while you're actively capturing or extracting.</li>
+    <li>No subtitle text sent for translation. Translation runs on your device.</li>
+    <li>No keystrokes, mouse movements, location, or advertising identifiers.</li>
   </ul>
 
   <h2>3. How long we keep it</h2>
   <ul>
-    <li><strong>Cropped subtitle frames:</strong> Processed in memory and discarded immediately. Never written to disk on our servers, never logged.</li>
-    <li><strong>Email address:</strong> Stored for as long as your account exists. Removed if you request deletion (see Section 7).</li>
-    <li><strong>Usage counters:</strong> Reset on the 1st of each calendar month. Historical counts are not retained.</li>
-    <li><strong>User preferences:</strong> Stored locally in your browser; deleted when you uninstall the extension.</li>
+    <li><strong>Cropped subtitle frames:</strong> processed in memory and discarded right after text recognition. Never stored.</li>
+    <li><strong>Usage counters:</strong> replaced at the start of each calendar month. Earlier months aren't kept.</li>
+    <li><strong>Purchase records:</strong> kept for as long as you might use or need to restore your hours, and as needed for accounting.</li>
+    <li><strong>Usage events and uninstall feedback:</strong> kept for as long as they're useful for improving SubClipper. You can ask us to delete the ones linked to your install ID at any time (see Section 7).</li>
+    <li><strong>Preferences and install ID on your device:</strong> stored in your browser. Local data is removed when you uninstall; Chrome may keep synced extension data in your Chrome profile.</li>
   </ul>
 
   <h2>4. Third parties</h2>
-  <p>SubClipper relies on a small number of third-party services to function. Each is listed here with the data they receive:</p>
-
-  <h3>ExtensionPay (extensionpay.com)</h3>
-  <p>
-    Handles user signup, subscription management, and payment processing. When you create an account or upgrade a plan, you interact directly with ExtensionPay on their own domain. We receive your email and subscription status from them, but never your payment card information.
-  </p>
-
-  <h3>Modal (modal.com)</h3>
-  <p>
-    Hosts the OCR backend that processes your cropped subtitle frames. Frames are sent here only when you actively capture or extract subtitles. Modal does not retain frames after processing.
-  </p>
-
-  <h3>Hugging Face (huggingface.co)</h3>
-  <p>
-    Hosts the pre-trained translation model that SubClipper downloads on first use. The download is a one-way file transfer — your browser fetches the model weights file, but no user data is sent to Hugging Face. After the first download, the model is cached locally and translation runs entirely on your device.
-  </p>
+  <p>SubClipper relies on a small number of services. Each is listed with the data it receives:</p>
+  <ul>
+    <li><strong>Modal (modal.com)</strong> hosts our backend: text recognition, usage counters, usage events, and purchase records. Subtitle frames are processed there and not retained.</li>
+    <li><strong>Stripe (stripe.com)</strong> processes payments for hour packs and acts as the seller of record, including calculating and collecting sales tax and VAT. You enter your payment details and receipt email directly on Stripe's checkout page; Stripe's own privacy policy applies to that information. Stripe sends us the purchase confirmation described above.</li>
+    <li><strong>ExtensionPay (extensionpay.com)</strong> is used only for accounts created before version 1.1.0, to confirm the account's email and plan.</li>
+    <li><strong>Hugging Face (huggingface.co)</strong> hosts the translation model, which your browser downloads once on first use. No user data is sent to Hugging Face.</li>
+  </ul>
+  <p>We don't sell your data, share it with advertisers, or use it for anything unrelated to running and improving SubClipper.</p>
 
   <h2>5. Where translation happens</h2>
   <p>
-    All translation is performed locally in your browser using a downloaded machine learning model. <strong>The text you translate never leaves your device.</strong> This is by design — translation is the most privacy-sensitive part of the extension, and we built it to require no network calls per translation.
+    All translation runs locally in your browser using a downloaded model. The text you translate never leaves your device, and translating makes no network requests.
   </p>
 
   <h2>6. Data security</h2>
   <ul>
-    <li>All communication between the extension and our backend is encrypted via HTTPS.</li>
-    <li>Frames are processed in memory only and discarded after the OCR call completes.</li>
-    <li>Usage data is stored in Modal's persistent key-value store, accessible only to our backend code.</li>
-    <li>Payment processing is delegated to ExtensionPay, which is responsible for PCI compliance.</li>
+    <li>All communication between the extension and our backend is encrypted over HTTPS.</li>
+    <li>Subtitle frames are processed in memory only.</li>
+    <li>Usage, purchase, and analytics data is stored in our Modal account and is accessible only to our backend and to us.</li>
+    <li>Your install ID is a long random value. Anyone who has it could use your hours, so only share it with us when asking for support.</li>
   </ul>
 
-  <h2>7. Your rights</h2>
-  <p>You can:</p>
+  <h2>7. Your choices and rights</h2>
   <ul>
-    <li><strong>Access or correct your data:</strong> Email us at <a href="mailto:support@subclipper.com">support@subclipper.com</a> and we'll respond within 7 days.</li>
-    <li><strong>Delete your account:</strong> Email us with "Delete my account" in the subject line. We'll remove your email and usage record from our backend within 7 days. You can also cancel your subscription via the ExtensionPay account portal at any time.</li>
-    <li><strong>Export your data:</strong> Your usage history is just two numbers (extraction seconds + capture count for the current month) — let us know if you'd like a copy.</li>
-    <li><strong>Stop using the extension:</strong> Uninstalling SubClipper from Chrome removes all locally stored data. To also remove your server-side account, request deletion as above.</li>
+    <li><strong>See or delete your data:</strong> email <a href="mailto:chris@daemonsolutions.tech">chris@daemonsolutions.tech</a> with your support ID (shown at the bottom of the extension's "Get more hours" screen). For purchase records, include your receipt email. We'll respond within 7 days. Deleting your data also removes any unused hours.</li>
+    <li><strong>Restore purchased hours:</strong> if you reinstall or switch computers, email us your receipt email and your new support ID and we'll move your hours over.</li>
+    <li><strong>Stop data collection:</strong> uninstalling SubClipper stops all collection and removes its local data. The uninstall survey is optional.</li>
+    <li><strong>Older ExtensionPay accounts:</strong> email us to have the email and usage record linked to your account deleted.</li>
   </ul>
 
   <h2>8. Children's privacy</h2>
   <p>
-    SubClipper is not directed at children under 13. We do not knowingly collect data from anyone under 13. If you believe a child has signed up, please contact us and we'll delete the account.
+    SubClipper is not directed at children under 13. We don't knowingly collect data from anyone under 13. If you believe a child has used SubClipper and want their data removed, contact us with their support ID and we'll delete it.
   </p>
 
   <h2>9. Changes to this policy</h2>
   <p>
-    If we materially change how we handle data, we'll update this page and revise the "Last updated" date at the top. Significant changes will be announced via the extension itself or by email to active users.
+    If we change how we handle data, we'll update this page and the "Last updated" date at the top. Significant changes will also be noted in the extension's Chrome Web Store listing.
   </p>
 
   <h2>10. Contact</h2>
   <p>
-    Questions, concerns, or requests: <a href="mailto:support@subclipper.com">support@subclipper.com</a>.
+    Questions, concerns, or requests: <a href="mailto:chris@daemonsolutions.tech">chris@daemonsolutions.tech</a>.
   </p>
 </main>
 

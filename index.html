@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SubClipper — Extract and Translate On-Screen Subtitles</title>
   <meta name="description" content="Capture, copy, and translate burned-in subtitles from YouTube, Instagram, and TikTok videos. Even text locked inside the picture." />
+  <meta name="theme-color" content="#0f0f0f" />
 
   <!-- Open Graph / social previews -->
   <meta property="og:title" content="SubClipper" />
@@ -14,39 +15,22 @@
   <link rel="icon" type="image/png" href="icon-128.png" />
 
   <style>
-    /* ---------- Tokens ---------- */
+    /* ---------- Tokens (matched to the extension's side panel) ---------- */
     :root {
-      --bg: #f7f7f8;
-      --bg-elevated: #fff;
-      --text: #111;
-      --text-muted: #6b7280;
-      --text-strong: #1f2937;
-      --border: #e5e7eb;
-      --border-soft: #f3f4f6;
-      --primary: #dc2626;
-      --primary-hover: #b91c1c;
-      --accent: #2563eb;
-      --success: #10b981;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-      --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-      --shadow-lg: 0 20px 60px rgba(0,0,0,0.12);
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0b0b0c;
-        --bg-elevated: #18181b;
-        --text: #f4f4f5;
-        --text-muted: #a1a1aa;
-        --text-strong: #e4e4e7;
-        --border: #27272a;
-        --border-soft: #1f1f23;
-        --primary: #ef4444;
-        --primary-hover: #dc2626;
-        --accent: #60a5fa;
-        --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-        --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
-        --shadow-lg: 0 20px 60px rgba(0,0,0,0.5);
-      }
+      --bg: #0f0f0f;
+      --surface: #1b1b1b;
+      --surface-2: #151515;
+      --border: #2a2a2a;
+      --border-strong: #3a3a3a;
+      --text: #ececec;
+      --muted: #9a9a9a;
+      --faint: #6a6a6a;
+      --red: #ef4444;
+      --red-hover: #dc2626;
+      --green: #22c55e;
+      --radius: 8px;
+      --gutter: clamp(16px, 4vw, 32px);
+      color-scheme: dark;
     }
 
     /* ---------- Base ---------- */
@@ -54,455 +38,444 @@
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       font-size: 16px;
-      line-height: 1.55;
+      line-height: 1.6;
       color: var(--text);
       background: var(--bg);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    h1, h2, h3 { letter-spacing: -0.02em; }
+    a { color: inherit; }
+    button, select { font: inherit; color: inherit; }
+    h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
+    :focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 
-    .container {
-      max-width: 1080px;
+    .wrap {
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 0 var(--gutter);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background 120ms ease, border-color 120ms ease;
+    }
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-red:hover { background: var(--red-hover); }
+    .btn-line { background: var(--surface); border-color: var(--border); }
+    .btn-line:hover { border-color: var(--border-strong); }
+
+    .label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
     /* ---------- Nav ---------- */
     nav {
       position: sticky;
       top: 0;
-      z-index: 100;
-      background: rgba(247, 247, 248, 0.85);
-      backdrop-filter: saturate(180%) blur(10px);
-      -webkit-backdrop-filter: saturate(180%) blur(10px);
+      z-index: 50;
+      background: rgba(15, 15, 15, 0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
-    }
-    @media (prefers-color-scheme: dark) {
-      nav { background: rgba(11, 11, 12, 0.85); }
     }
     .nav-inner {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 14px 24px;
-      max-width: 1080px;
-      margin: 0 auto;
+      gap: 28px;
+      padding-top: 12px;
+      padding-bottom: 12px;
     }
-    .nav-logo {
+    .logo {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      font-weight: 700;
-      font-size: 17px;
-      color: var(--text);
-      text-decoration: none;
-    }
-    .nav-logo img { width: 28px; height: 28px; border-radius: 6px; }
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 22px;
-    }
-    .nav-links a {
-      color: var(--text-muted);
-      font-size: 14px;
-      font-weight: 500;
-      text-decoration: none;
-    }
-    .nav-links a:hover { color: var(--text); }
-    .nav-cta {
-      background: var(--primary);
-      color: #fff !important;
-      padding: 8px 16px;
-      border-radius: 8px;
       font-weight: 600;
-      font-size: 14px;
-      box-shadow: var(--shadow-sm);
-      transition: background 100ms ease, transform 100ms ease;
-    }
-    .nav-cta:hover {
-      background: var(--primary-hover);
+      font-size: 16px;
       text-decoration: none;
-      transform: translateY(-1px);
     }
-    @media (max-width: 640px) {
-      .nav-links a:not(.nav-cta) { display: none; }
-    }
+    .logo img { width: 26px; height: 26px; border-radius: 6px; }
+    .nav-links { margin-left: auto; display: flex; align-items: center; gap: 24px; }
+    .nav-links a:not(.btn) { color: var(--muted); font-size: 14px; text-decoration: none; }
+    .nav-links a:not(.btn):hover { color: var(--text); }
+    .nav-links .btn { padding: 7px 14px; font-size: 14px; }
+    @media (max-width: 640px) { .nav-links a:not(.btn) { display: none; } }
 
     /* ---------- Hero ---------- */
-    .hero {
-      padding: 96px 0 80px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at center top, rgba(220, 38, 38, 0.07), transparent 60%);
-      pointer-events: none;
-    }
-    .hero-content { position: relative; }
+    .hero { padding: 80px 0 72px; }
+    .hero-text { max-width: 640px; margin-bottom: 48px; }
     .hero h1 {
-      font-size: clamp(34px, 6vw, 56px);
-      font-weight: 700;
-      margin: 0 0 16px;
-      line-height: 1.1;
+      font-size: clamp(36px, 5.4vw, 60px);
+      font-weight: 650;
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+      margin-bottom: 18px;
     }
-    .hero-tagline {
-      font-size: clamp(16px, 2.4vw, 20px);
-      color: var(--text-muted);
-      max-width: 640px;
-      margin: 0 auto 36px;
-    }
-    .hero-cta-row {
-      display: inline-flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--primary);
-      color: #fff;
-      padding: 14px 24px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 15px;
-      box-shadow: var(--shadow-md);
-      text-decoration: none;
-      transition: background 100ms ease, transform 100ms ease, box-shadow 100ms ease;
-    }
-    .btn-primary:hover {
-      background: var(--primary-hover);
-      text-decoration: none;
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-lg);
-    }
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--bg-elevated);
-      color: var(--text);
-      padding: 14px 24px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 15px;
-      border: 1px solid var(--border);
-      text-decoration: none;
-      transition: background 100ms ease, border-color 100ms ease;
-    }
-    .btn-secondary:hover {
-      background: var(--bg);
-      border-color: var(--text-muted);
-      text-decoration: none;
-    }
+    .hero-text p { font-size: 18px; color: var(--muted); margin: 0 0 28px; max-width: 34em; }
+    .hero-cta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .hero-cta .note { font-size: 14px; color: var(--faint); }
 
-    /* ---------- Section ---------- */
-    section.block { padding: 80px 0; }
-    .section-eyebrow {
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-    .section-title {
-      font-size: clamp(28px, 4vw, 38px);
-      font-weight: 700;
-      margin: 0 0 16px;
-      max-width: 640px;
-    }
-    .section-lead {
-      font-size: 17px;
-      color: var(--text-muted);
-      max-width: 640px;
-      margin: 0 0 48px;
-    }
-    .section-centered {
-      text-align: center;
-    }
-    .section-centered .section-title,
-    .section-centered .section-lead {
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    /* ---------- How it works ---------- */
-    .steps {
+    /* ---------- Demo: video + side panel ---------- */
+    .demo {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    @media (max-width: 720px) {
-      .steps { grid-template-columns: 1fr; }
-    }
-    .step {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 28px 24px;
-      position: relative;
-    }
-    .step-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: #fff;
-      font-weight: 700;
-      font-size: 14px;
-      margin-bottom: 16px;
-    }
-    .step h3 { margin: 0 0 8px; font-size: 18px; font-weight: 600; }
-    .step p { margin: 0; color: var(--text-muted); font-size: 14.5px; }
-
-    /* ---------- Features ---------- */
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 18px;
-    }
-    .feature {
-      background: var(--bg-elevated);
+      grid-template-columns: minmax(0, 1fr) 360px;
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 24px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.9);
     }
-    .feature-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: rgba(37, 99, 235, 0.1);
-      color: var(--accent);
-      margin-bottom: 14px;
+    @media (min-width: 901px) {
+      .demo { height: 640px; }
+      .video-col, .video { height: 100%; }
+      .video { aspect-ratio: auto; }
     }
-    .feature-icon svg { width: 20px; height: 20px; }
-    .feature h3 { margin: 0 0 6px; font-size: 16px; font-weight: 600; }
-    .feature p { margin: 0; color: var(--text-muted); font-size: 14px; }
+    @media (max-width: 900px) { .demo { grid-template-columns: minmax(0, 1fr); } }
 
-    /* ---------- Use cases ---------- */
-    .use-cases {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
-    }
-    .use-case {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--primary);
-      border-radius: 8px;
-      padding: 20px 22px;
-    }
-    .use-case h3 { margin: 0 0 6px; font-size: 15px; font-weight: 600; }
-    .use-case p { margin: 0; color: var(--text-muted); font-size: 14px; }
-
-    /* ---------- Languages ---------- */
-    .lang-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 8px;
-    }
-    .lang-chip {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 10px 14px;
-      font-size: 14px;
-      color: var(--text-strong);
-    }
-
-    /* ---------- Pricing ---------- */
-    .pricing {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
-    @media (max-width: 820px) {
-      .pricing { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
-    }
-    .plan {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 28px 24px;
-      display: flex;
-      flex-direction: column;
-    }
-    .plan.featured {
-      border-color: var(--primary);
-      border-width: 2px;
+    .video-col { display: flex; align-items: center; background: #000; }
+    .video {
       position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      container-type: inline-size;
+      --c1: #8a4b52;
+      --c2: #3f5d7a;
+      --c3: #6e5a4a;
+      background:
+        radial-gradient(60% 70% at 72% 35%, color-mix(in srgb, var(--c1) 45%, transparent), transparent 70%),
+        radial-gradient(50% 60% at 20% 25%, color-mix(in srgb, var(--c2) 45%, transparent), transparent 70%),
+        linear-gradient(180deg, #1d1a1c 0%, #121012 100%);
     }
-    .plan.featured::before {
-      content: "Most popular";
+    .video > * { transition: opacity 350ms ease; }
+    .video.cut > * { opacity: 0; }
+    .video .shape {
       position: absolute;
-      top: -11px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--primary);
+      border-radius: 50%;
+      filter: blur(30px);
+      opacity: 0.5;
+      transition: background-color 350ms ease;
+    }
+    .video.cut .shape { opacity: 0; }
+    .subtitle {
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      bottom: 13%;
+      text-align: center;
       color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 999px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-size: clamp(14px, 3.6cqw, 34px);
+      font-weight: 500;
+      line-height: 1.3;
+      text-shadow: 0 0 2px #000, 0 0 3px #000, 1px 1px 2px #000;
     }
-    .plan-name {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 8px;
+    .region {
+      position: absolute;
+      left: 4%;
+      right: 4%;
+      bottom: 9%;
+      height: 18%;
+      border: 2px dashed var(--red);
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity 200ms ease;
+      pointer-events: none;
     }
-    .plan-price {
-      font-size: 36px;
-      font-weight: 700;
-      line-height: 1;
-      margin-bottom: 4px;
+    .region span {
+      position: absolute;
+      left: -2px;
+      top: -26px;
+      background: var(--red);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
     }
-    .plan-price small {
-      font-size: 14px;
-      font-weight: 400;
-      color: var(--text-muted);
-    }
-    .plan-tagline {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin: 0 0 20px;
-    }
-    .plan-features {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 24px;
-      flex: 1;
-    }
-    .plan-features li {
-      padding: 6px 0 6px 22px;
-      position: relative;
-      font-size: 14.5px;
-      color: var(--text-strong);
-    }
-    .plan-features li::before {
-      content: "✓";
+    .region.on { opacity: 1; }
+    .player-bar {
       position: absolute;
       left: 0;
-      color: var(--success);
-      font-weight: 700;
+      right: 0;
+      bottom: 0;
+      padding: 0 2.5cqw 1.8cqw;
+      display: flex;
+      align-items: center;
+      gap: 1.6cqw;
+      font-size: clamp(10px, 1.3cqw, 13px);
+      color: rgba(255, 255, 255, 0.8);
+      font-variant-numeric: tabular-nums;
     }
-    .plan .btn-primary,
-    .plan .btn-secondary {
-      width: 100%;
-      justify-content: center;
-      padding: 12px 16px;
-      font-size: 14px;
-    }
+    .player-bar .track { flex: 1; height: 3px; background: rgba(255, 255, 255, 0.25); border-radius: 2px; }
+    .player-bar .track i { display: block; height: 100%; width: 0; background: var(--red); border-radius: 2px; }
 
-    /* ---------- FAQ ---------- */
-    .faq-list {
+    /* Side panel replica */
+    .panel {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      font-size: 13px;
+      min-height: 0;
     }
-    details.faq {
-      background: var(--bg-elevated);
+    @media (max-width: 900px) { .panel { border-left: 0; border-top: 1px solid var(--border); height: 580px; } }
+    .panel-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .panel-bar img { width: 14px; height: 14px; border-radius: 3px; }
+    .panel-body {
+      padding: 12px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+    }
+    .panel-head { display: flex; align-items: center; gap: 6px; }
+    .panel-head strong { font-size: 15px; font-weight: 600; margin-right: auto; }
+    .icon-chip {
+      width: 24px;
+      height: 24px;
+      display: inline-grid;
+      place-items: center;
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 9px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); flex: none; }
+    .status.live { color: var(--text); }
+    .status.live .dot { background: var(--red); }
+    .usage { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+    .usage span { margin-right: auto; }
+    .usage a {
+      background: var(--red);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .start {
+      width: 100%;
+      padding: 9px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--red);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .start:hover { background: var(--red-hover); }
+    .start.stop { background: transparent; box-shadow: inset 0 0 0 1px var(--red); color: var(--red); }
+    .field { display: flex; flex-direction: column; gap: 5px; color: var(--muted); font-size: 12px; }
+    .field select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--surface-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0h10L5 6z' fill='%23bbb'/%3E%3C/svg%3E") no-repeat right 12px center;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .ready { display: flex; align-items: center; gap: 6px; color: var(--green); font-size: 12px; margin-top: -4px; }
+    .ready .dot { background: var(--green); }
+    .ready[hidden] { display: none; }
+    .transcript {
+      flex: 1;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface-2);
       overflow: hidden;
     }
-    details.faq summary {
-      padding: 18px 20px;
+    .transcript-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .text-btn {
+      background: none;
+      border: 0;
+      padding: 0;
+      color: var(--muted);
+      font-size: 12px;
       cursor: pointer;
-      font-weight: 600;
-      font-size: 15px;
-      list-style: none;
+    }
+    .text-btn:hover { color: var(--text); }
+    .lines { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
+    .lines .empty { padding: 20px 10px; text-align: center; color: var(--faint); font-style: italic; }
+    .line { padding: 8px 10px; border-bottom: 1px solid var(--border); animation: line-in 220ms ease; }
+    @keyframes line-in { from { opacity: 0; transform: translateY(4px); } }
+    .line time { display: block; font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
+    .line .src { font-size: 14px; color: var(--text); }
+    .line .tr { color: var(--muted); display: none; }
+    .lines[data-target="en"] .tr[lang="en"],
+    .lines[data-target="es"] .tr[lang="es"] { display: block; }
+    .panel-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 6px;
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+    .panel-btn:hover { border-color: var(--border-strong); }
+    .panel-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .export-row { display: flex; gap: 8px; align-items: center; position: relative; }
+    .export-row .panel-btn { flex: 1; }
+    .export-row .text-btn { color: var(--red); padding: 0 6px; }
+    .export-menu {
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 6px);
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      gap: 2px;
+      padding: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
     }
-    details.faq summary::-webkit-details-marker { display: none; }
-    details.faq summary::after {
-      content: "+";
-      color: var(--text-muted);
-      font-size: 20px;
-      font-weight: 400;
-      transition: transform 120ms ease;
+    .export-menu[hidden] { display: none; }
+    .export-menu button {
+      background: none;
+      border: 0;
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 12.5px;
+      cursor: pointer;
     }
-    details.faq[open] summary::after { transform: rotate(45deg); }
-    details.faq .faq-answer {
-      padding: 0 20px 18px;
-      color: var(--text-muted);
-      font-size: 14.5px;
-    }
+    .export-menu button:hover { background: var(--surface-2); }
+    .demo-note { margin: 14px 0 0; font-size: 13.5px; color: var(--faint); }
 
-    /* ---------- Footer ---------- */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 36px 0;
-      color: var(--text-muted);
-      font-size: 14px;
+    /* ---------- Sections ---------- */
+    section { padding: 96px 0; border-top: 1px solid var(--border); }
+    .sec-title { font-size: clamp(26px, 3.2vw, 36px); font-weight: 650; letter-spacing: -0.03em; margin-bottom: 10px; }
+    .sec-sub { color: var(--muted); margin: 0 0 44px; max-width: 34em; }
+
+    /* How it works */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    @media (max-width: 760px) { .steps { grid-template-columns: 1fr; gap: 28px; } }
+    .step .n { font-size: 13px; color: var(--red); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .step h3 { font-size: 18px; font-weight: 600; margin: 6px 0; }
+    .step p { margin: 0; color: var(--muted); }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin-top: 64px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
     }
-    .footer-inner {
+    @media (max-width: 860px) { .facts { grid-template-columns: 1fr 1fr; } }
+    .fact { padding: 20px 22px; border-right: 1px solid var(--border); }
+    .fact:last-child { border-right: 0; }
+    @media (max-width: 860px) {
+      .fact:nth-child(2) { border-right: 0; }
+      .fact:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
+    }
+    .fact b { display: block; font-size: 17px; font-weight: 600; }
+    .fact span { font-size: 13.5px; color: var(--muted); }
+
+    /* Pricing */
+    .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 860px) { .plans { grid-template-columns: 1fr; max-width: 420px; } }
+    .plan {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+    }
+    .plan.best { border-color: var(--red); }
+    .plan-top { display: flex; justify-content: space-between; align-items: baseline; }
+    .plan h3 { font-size: 15px; font-weight: 600; }
+    .plan .tag { font-size: 12px; font-weight: 600; color: var(--red); }
+    .price { font-size: 40px; font-weight: 650; letter-spacing: -0.03em; margin: 14px 0 2px; line-height: 1; }
+    .price small { font-size: 14px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+    .plan ul { list-style: none; margin: 18px 0 24px; padding: 18px 0 0; border-top: 1px solid var(--border); flex: 1; }
+    .plan li { padding: 4px 0 4px 18px; position: relative; color: #cfcfcf; font-size: 14.5px; }
+    .plan li::before { content: ""; position: absolute; left: 2px; top: 0.85em; width: 6px; height: 6px; border-radius: 50%; background: var(--faint); }
+    .plan .btn { width: 100%; }
+    .fine { margin: 20px 0 0; font-size: 13.5px; color: var(--faint); }
+
+    /* FAQ */
+    .faq-list { max-width: 760px; }
+    details { border-bottom: 1px solid var(--border); }
+    details:first-of-type { border-top: 1px solid var(--border); }
+    summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
       justify-content: space-between;
-      flex-wrap: wrap;
       gap: 16px;
+      padding: 18px 0;
+      font-weight: 600;
     }
-    .footer-links {
-      display: flex;
-      gap: 20px;
-    }
-    .footer-links a {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 14px;
-    }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; color: var(--muted); font-weight: 400; font-size: 20px; line-height: 1; transition: transform 150ms ease; }
+    details[open] summary::after { transform: rotate(45deg); }
+    .answer { padding: 0 32px 20px 0; color: var(--muted); }
+    .answer a { color: var(--text); }
+
+    /* Closing CTA + footer */
+    .closing { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .closing h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 650; letter-spacing: -0.03em; }
+    .closing p { margin: 6px 0 0; color: var(--muted); }
+    footer { border-top: 1px solid var(--border); padding: 28px 0; font-size: 14px; color: var(--faint); }
+    .footer-inner { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a { color: var(--muted); text-decoration: none; }
     .footer-links a:hover { color: var(--text); }
 
-    /* ---------- Final CTA strip ---------- */
-    .final-cta {
-      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-      color: #fff;
-      padding: 64px 24px;
-      text-align: center;
-      border-radius: 18px;
-      margin: 80px auto;
-      max-width: 880px;
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .line { animation: none; }
     }
-    .final-cta h2 {
-      color: #fff;
-      font-size: clamp(24px, 3.5vw, 32px);
-      margin: 0 0 12px;
-    }
-    .final-cta p {
-      color: rgba(255,255,255,0.92);
-      margin: 0 0 28px;
-      font-size: 16px;
-    }
-    .final-cta .btn-primary {
-      background: #fff;
-      color: var(--primary);
-    }
-    .final-cta .btn-primary:hover { background: #f4f4f5; }
   </style>
 </head>
 
@@ -510,335 +483,480 @@
 
 <!-- ============= NAV ============= -->
 <nav>
-  <div class="nav-inner">
-    <a href="#" class="nav-logo">
-      <img src="icon-128.png" alt="SubClipper" />
-      SubClipper
-    </a>
+  <div class="wrap nav-inner">
+    <a href="#" class="logo"><img src="icon-128.png" alt="" /> SubClipper</a>
     <div class="nav-links">
-      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
       <a href="privacy.html">Privacy</a>
-      <a href="#install" class="nav-cta">Add to Chrome</a>
+      <a href="https://chromewebstore.google.com/detail/kkdnkljeibjbabbkkaafkaooogidkmdf" class="btn btn-red">Add to Chrome</a>
     </div>
   </div>
 </nav>
 
 <!-- ============= HERO ============= -->
-<section class="hero">
-  <div class="container hero-content">
-    <h1>Stop staring at text<br>you can't copy.</h1>
-    <p class="hero-tagline">
-      SubClipper captures and translates burned-in subtitles from YouTube, Instagram, and TikTok videos —
-      the text that's locked inside the picture and otherwise impossible to select, copy, or translate.
-    </p>
-    <div class="hero-cta-row">
-      <a href="#install" class="btn-primary">
-        Add to Chrome — Free
-      </a>
-      <a href="#how" class="btn-secondary">See how it works</a>
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-text">
+      <h1>Copy the subtitles you can't select.</h1>
+      <p>SubClipper reads the subtitles burned into YouTube, Instagram, and TikTok videos and turns them into a live transcript. You can translate it too if you want.</p>
+      <div class="hero-cta">
+        <a href="https://chromewebstore.google.com/detail/kkdnkljeibjbabbkkaafkaooogidkmdf" class="btn btn-red">Add to Chrome — Free</a>
+        <span class="note">20 free minutes every month. No signup.</span>
+      </div>
     </div>
+
+    <div class="demo" id="demo">
+      <div class="video-col">
+        <div class="video" id="video" aria-hidden="true">
+          <span class="shape" style="left:58%;top:12%;width:26%;height:46%;background:var(--c1)"></span>
+          <span class="shape" style="left:10%;top:20%;width:22%;height:40%;background:var(--c2)"></span>
+          <span class="shape" style="left:36%;top:40%;width:18%;height:34%;background:var(--c3)"></span>
+          <div class="subtitle" id="subtitle"></div>
+          <div class="region" id="region"><span>Subtitle region</span></div>
+          <div class="player-bar">
+            <span id="clock">0:00</span>
+            <span class="track"><i id="progress"></i></span>
+            <span>12:40</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel" aria-label="SubClipper side panel (interactive demo)">
+        <div class="panel-bar"><img src="icon-128.png" alt="" /> SubClipper: Extract and Translate On-Screen Subtitles</div>
+        <div class="panel-body">
+          <div class="panel-head">
+            <strong>SubClipper</strong>
+            <span class="icon-chip" aria-hidden="true">?</span>
+            <span class="icon-chip" aria-hidden="true">⚙</span>
+            <span class="status" id="status"><span class="dot"></span><span id="status-text">Idle</span></span>
+          </div>
+          <div class="usage">
+            <span>20m watch time · <span id="captures-left">20</span> captures left</span>
+            <a href="#pricing">Get more hours</a>
+          </div>
+          <button type="button" class="start" id="start">Start Subtitle Extraction</button>
+          <label class="field">Select language to extract
+            <select id="lang">
+              <option value="zh">Chinese Simplified</option>
+              <option value="en">English</option>
+              <option value="ko">Korean</option>
+              <option value="es">Spanish</option>
+              <option value="ja">Japanese</option>
+            </select>
+          </label>
+          <span class="ready"><span class="dot"></span>Engine ready</span>
+          <label class="field">Translate to (optional)
+            <select id="target">
+              <option value="">None</option>
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+            </select>
+          </label>
+          <span class="ready" id="translator-ready" hidden><span class="dot"></span>Translator ready</span>
+          <div class="transcript">
+            <div class="transcript-head">
+              <span class="label">Live transcript</span>
+              <button type="button" class="text-btn" data-clear>Clear</button>
+            </div>
+            <ul class="lines" id="lines" aria-live="polite">
+              <li class="empty">Waiting for captures…</li>
+            </ul>
+          </div>
+          <div class="panel-actions">
+            <button type="button" class="panel-btn" id="capture">Capture Current Frame</button>
+            <button type="button" class="panel-btn" id="edit-region">Edit Subtitle Region</button>
+          </div>
+          <div class="export-row">
+            <button type="button" class="panel-btn" id="export" aria-expanded="false">Export Transcript ▾</button>
+            <button type="button" class="text-btn" data-clear>Clear All</button>
+            <div class="export-menu" id="export-menu" hidden>
+              <button type="button" data-fmt="txt">.txt</button>
+              <button type="button" data-fmt="srt">.srt</button>
+              <button type="button" data-fmt="vtt">.vtt</button>
+              <button type="button" data-fmt="csv">.csv</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <p class="demo-note">This panel works. Start extraction, capture a frame, or turn translation on and off.</p>
   </div>
-</section>
+</header>
 
 <!-- ============= HOW IT WORKS ============= -->
-<section id="how" class="block">
-  <div class="container">
-    <div class="section-centered" style="text-align:center; max-width:640px; margin:0 auto 48px;">
-      <div class="section-eyebrow">How it works</div>
-      <h2 class="section-title" style="margin-bottom: 12px;">Three clicks from playing to translated.</h2>
-      <p class="section-lead">No transcription services, no API keys, no copy-pasting frame by frame.</p>
-    </div>
+<section id="how">
+  <div class="wrap">
+    <h2 class="sec-title">How it works</h2>
+    <p class="sec-sub">It reads the pixels on screen, so it works even when a video has no caption track.</p>
     <div class="steps">
       <div class="step">
-        <div class="step-num">1</div>
-        <h3>Open your video</h3>
-        <p>Open any YouTube, Instagram, or TikTok video with on-screen subtitles, then open SubClipper in Chrome's side panel.</p>
+        <span class="n">01</span>
+        <h3>Capture</h3>
+        <p>Grab the subtitle on screen with one click, or start extraction and let it read as you watch.</p>
       </div>
       <div class="step">
-        <div class="step-num">2</div>
-        <h3>Capture or extract</h3>
-        <p>Pause the video and click "Capture Current Frame," or let SubClipper run in the background and build a live transcript as you watch.</p>
+        <span class="n">02</span>
+        <h3>Read the transcript</h3>
+        <p>Every line lands in the live transcript, ready to copy or export as .txt, .srt, .vtt, or .csv.</p>
       </div>
       <div class="step">
-        <div class="step-num">3</div>
-        <h3>Translate, copy, export</h3>
-        <p>Translate any line with one click, copy the text, or export the whole transcript as .txt, .srt, .vtt, or .csv.</p>
+        <span class="n">03</span>
+        <h3>Translate, if you want</h3>
+        <p>Pick a language and a translation appears under each line. It runs on your device.</p>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- ============= FEATURES ============= -->
-<section id="features" class="block" style="background:var(--border-soft);">
-  <div class="container">
-    <div class="section-eyebrow">Features</div>
-    <h2 class="section-title">Built for any video with text on screen.</h2>
-    <p class="section-lead">Reads pixels, not caption tracks — so it works on videos where built-in captions are missing, wrong, or "burned into" the picture itself.</p>
-
-    <div class="features">
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/></svg>
-        </div>
-        <h3>11 OCR languages</h3>
-        <p>Chinese (Simplified + Traditional), Japanese, Korean, English, Spanish, French, German, Italian, Russian, Ukrainian.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h12M9 4h2M11 4v4c0 4-3 7-6 7M13 12c2 3 5 5 8 5M14 14l5 8M19 22l5-8"/></svg>
-        </div>
-        <h3>Instant translation</h3>
-        <p>Translate any subtitle to 15 target languages, on-demand. Translation runs entirely on-device.</p>
-      </div>
-<div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-        </div>
-        <h3>Export anywhere</h3>
-        <p>Save the full transcript as .txt, .srt, .vtt, or .csv. Drop straight into Anki, Quizlet, or any subtitle editor.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
-        </div>
-        <h3>Customizable region</h3>
-        <p>Draw the subtitle area once — SubClipper only processes that region. Works with non-standard subtitle positions.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-        </div>
-        <h3>Stays in the side panel</h3>
-        <p>The whole interface lives in Chrome's side panel — out of the way while you watch, always one click from the video.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============= USE CASES ============= -->
-<section class="block">
-  <div class="container">
-    <div class="section-eyebrow">Who it's for</div>
-    <h2 class="section-title">One tool, many uses.</h2>
-
-    <div class="use-cases">
-      <div class="use-case">
-        <h3>Language learners</h3>
-        <p>Anime, K-dramas, telenovelas, foreign news — every line becomes a lesson.</p>
-      </div>
-      <div class="use-case">
-        <h3>Researchers &amp; journalists</h3>
-        <p>Transcribe video interviews, lectures, and clips for quoting in your work.</p>
-      </div>
-      <div class="use-case">
-        <h3>Content creators</h3>
-        <p>Generate subtitle files from videos that don't have caption tracks.</p>
-      </div>
-      <div class="use-case">
-        <h3>Accessibility</h3>
-        <p>Read along with foreign-language content at your own pace.</p>
-      </div>
-      <div class="use-case">
-        <h3>Casual viewers</h3>
-        <p>Save a great quote or caption from a video without typing it out.</p>
-      </div>
-      <div class="use-case">
-        <h3>Translators</h3>
-        <p>Pull source text from videos when no transcript is provided.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============= LANGUAGES ============= -->
-<section class="block" style="background:var(--border-soft);">
-  <div class="container">
-    <div class="section-eyebrow">Languages</div>
-    <h2 class="section-title">11 reading languages, 15 translation targets.</h2>
-    <p class="section-lead">More languages added over time. Translation is bidirectional — translate from any reading language to any target language.</p>
-
-    <h3 style="font-size:14px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin: 24px 0 12px;">Read on-screen subtitles</h3>
-    <div class="lang-grid">
-      <div class="lang-chip">Chinese (Simplified)</div>
-      <div class="lang-chip">Chinese (Traditional)</div>
-      <div class="lang-chip">Japanese</div>
-      <div class="lang-chip">Korean</div>
-      <div class="lang-chip">English</div>
-      <div class="lang-chip">Spanish</div>
-      <div class="lang-chip">French</div>
-      <div class="lang-chip">German</div>
-      <div class="lang-chip">Italian</div>
-      <div class="lang-chip">Russian</div>
-      <div class="lang-chip">Ukrainian</div>
-    </div>
-
-    <h3 style="font-size:14px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin: 32px 0 12px;">Translate to</h3>
-    <div class="lang-grid">
-      <div class="lang-chip">English</div>
-      <div class="lang-chip">Spanish</div>
-      <div class="lang-chip">French</div>
-      <div class="lang-chip">German</div>
-      <div class="lang-chip">Italian</div>
-      <div class="lang-chip">Portuguese</div>
-      <div class="lang-chip">Russian</div>
-      <div class="lang-chip">Chinese (Simp.)</div>
-      <div class="lang-chip">Chinese (Trad.)</div>
-      <div class="lang-chip">Japanese</div>
-      <div class="lang-chip">Korean</div>
-      <div class="lang-chip">Arabic</div>
-      <div class="lang-chip">Hindi</div>
-      <div class="lang-chip">Vietnamese</div>
-      <div class="lang-chip">Thai</div>
+    <div class="facts">
+      <div class="fact"><b>12 languages</b><span>read from video</span></div>
+      <div class="fact"><b>15 languages</b><span>to translate into</span></div>
+      <div class="fact"><b>YouTube, Instagram, TikTok</b><span>supported sites</span></div>
+      <div class="fact"><b>Chrome side panel</b><span>stays next to the video</span></div>
     </div>
   </div>
 </section>
 
 <!-- ============= PRICING ============= -->
-<section id="pricing" class="block">
-  <div class="container">
-    <div class="section-centered" style="text-align:center; max-width:640px; margin:0 auto 48px;">
-      <div class="section-eyebrow">Pricing</div>
-      <h2 class="section-title" style="margin-bottom:12px;">Free to try, fair to upgrade.</h2>
-      <p class="section-lead">Quota resets the 1st of each month. Cancel anytime, no questions asked.</p>
-    </div>
-
-    <div class="pricing">
+<section id="pricing">
+  <div class="wrap">
+    <h2 class="sec-title">Pricing</h2>
+    <p class="sec-sub">Free every month. Need more? Buy an hour pack once. It never expires.</p>
+    <div class="plans">
       <div class="plan">
-        <div class="plan-name">Free</div>
-        <div class="plan-price">$0<small>/month</small></div>
-        <p class="plan-tagline">Just sign up with email. No credit card.</p>
-        <ul class="plan-features">
-          <li>10 minutes of extraction per month</li>
-          <li>50 single-frame captures per month</li>
-          <li>All 11 languages</li>
-          <li>Built-in translation + pinyin</li>
+        <div class="plan-top"><h3>Free</h3></div>
+        <div class="price">$0<small> / month</small></div>
+        <ul>
+          <li>20 min of live extraction a month</li>
+          <li>20 frame captures a month</li>
+          <li>All languages, translation, and pinyin</li>
           <li>Export to .txt, .srt, .vtt, .csv</li>
         </ul>
-        <a href="#install" class="btn-secondary">Get started</a>
+        <a href="https://chromewebstore.google.com/detail/kkdnkljeibjbabbkkaafkaooogidkmdf" class="btn btn-line">Add to Chrome</a>
       </div>
-
       <div class="plan">
-        <div class="plan-name">Basic</div>
-        <div class="plan-price">$7.99<small>/month</small></div>
-        <p class="plan-tagline">For regular use — a few episodes a week.</p>
-        <ul class="plan-features">
-          <li>10 hours of extraction per month</li>
-          <li>2,000 single-frame captures per month</li>
-          <li>Everything in Free</li>
-          <li>Cancel anytime</li>
+        <div class="plan-top"><h3>2-hour pack</h3></div>
+        <div class="price">$4.99<small> one-time</small></div>
+        <ul>
+          <li>2 hours of live extraction</li>
+          <li>200 frame captures</li>
+          <li>Never expires</li>
         </ul>
-        <a href="#install" class="btn-primary">Choose Basic</a>
+        <a href="https://chromewebstore.google.com/detail/kkdnkljeibjbabbkkaafkaooogidkmdf" class="btn btn-line">Get the 2-hour pack</a>
       </div>
-
-      <div class="plan">
-        <div class="plan-name">Pro</div>
-        <div class="plan-price">$14.99<small>/month</small></div>
-        <p class="plan-tagline">Heavy users, researchers, content creators.</p>
-        <ul class="plan-features">
-          <li>40 hours of extraction per month</li>
-          <li>8,000 single-frame captures per month</li>
-          <li>Everything in Basic</li>
-          <li>Priority email support</li>
+      <div class="plan best">
+        <div class="plan-top"><h3>5-hour pack</h3><span class="tag">Best value</span></div>
+        <div class="price">$9.99<small> one-time</small></div>
+        <ul>
+          <li>5 hours of live extraction</li>
+          <li>1,000 frame captures</li>
+          <li>Never expires</li>
         </ul>
-        <a href="#install" class="btn-secondary">Choose Pro</a>
+        <a href="https://chromewebstore.google.com/detail/kkdnkljeibjbabbkkaafkaooogidkmdf" class="btn btn-red">Get the 5-hour pack</a>
       </div>
     </div>
+    <p class="fine">Packs are used after your free monthly time and are bought inside the extension through Stripe. Prices include tax.</p>
   </div>
 </section>
 
 <!-- ============= FAQ ============= -->
-<section id="faq" class="block" style="background:var(--border-soft);">
-  <div class="container">
-    <div class="section-eyebrow">FAQ</div>
-    <h2 class="section-title">Questions &amp; answers</h2>
-
-    <div class="faq-list" style="margin-top:32px;">
-      <details class="faq">
+<section id="faq">
+  <div class="wrap">
+    <h2 class="sec-title" style="margin-bottom:32px">FAQ</h2>
+    <div class="faq-list">
+      <details>
         <summary>What does "burned-in subtitles" mean?</summary>
-        <div class="faq-answer">
-          Burned-in subtitles are text that has been baked directly into the video frames during editing — they're part of the image itself, not a separate caption track. You can see them, but you can't select, copy, or translate them through normal browser tools. SubClipper reads the pixels on screen using OCR (optical character recognition) to extract that text.
-        </div>
+        <div class="answer">Burned-in subtitles are text that has been baked directly into the video frames during editing. They're part of the image itself, not a separate caption track. You can see them, but you can't select, copy, or translate them through normal browser tools. SubClipper reads the pixels on screen using OCR (optical character recognition) to extract that text.</div>
       </details>
-
-      <details class="faq">
+      <details>
         <summary>How is this different from YouTube's auto-captions?</summary>
-        <div class="faq-answer">
-          YouTube's caption track requires the uploader to have provided captions, or for auto-captions to be enabled and accurate. Most foreign-language content, user-uploaded clips, and videos with burned-in subtitles don't have a working caption track. SubClipper bypasses this entirely by reading what's actually on screen, regardless of what captions the platform provides.
-        </div>
+        <div class="answer">YouTube's caption track requires the uploader to have provided captions, or for auto-captions to be enabled and accurate. Most foreign-language content, user-uploaded clips, and videos with burned-in subtitles don't have a working caption track. SubClipper bypasses this entirely by reading what's actually on screen, regardless of what captions the platform provides.</div>
       </details>
-
-      <details class="faq">
+      <details>
         <summary>Does it work on Netflix, Disney+, HBO Max?</summary>
-        <div class="faq-answer">
-          No. Major streaming services use DRM (digital rights management) that prevents any browser extension from reading video content. SubClipper works on YouTube, Instagram, and TikTok, which don't apply DRM to their public content.
-        </div>
+        <div class="answer">No. Major streaming services use DRM (digital rights management) that prevents any browser extension from reading video content. SubClipper works on YouTube, Instagram, and TikTok, which don't apply DRM to their public content.</div>
       </details>
-
-      <details class="faq">
+      <details>
+        <summary>Which languages does it support?</summary>
+        <div class="answer">It reads Chinese (Simplified and Traditional), Japanese, Korean, English, Spanish, French, German, Italian, Turkish, Russian, and Ukrainian. It translates into English, Spanish, French, German, Italian, Portuguese, Russian, Chinese (Simplified and Traditional), Japanese, Korean, Arabic, Hindi, Vietnamese, and Thai.</div>
+      </details>
+      <details>
         <summary>Is my video data sent anywhere?</summary>
-        <div class="faq-answer">
-          Cropped subtitle frames (the small region of pixels containing the subtitle) are sent to our OCR backend for text recognition. Frames are processed in memory and discarded — never stored. Translation happens entirely in your browser, so the text being translated never leaves your device. See our <a href="privacy.html">Privacy Policy</a> for full details.
-        </div>
+        <div class="answer">Cropped subtitle frames (the small region of pixels containing the subtitle) are sent to our OCR backend for text recognition. Frames are processed in memory and discarded, never stored. Translation happens entirely in your browser, so the text being translated never leaves your device. See our <a href="privacy.html">Privacy Policy</a> for full details.</div>
       </details>
-
-      <details class="faq">
+      <details>
         <summary>Do I need to download anything?</summary>
-        <div class="faq-answer">
-          Yes — the translation model (~350 MB) downloads automatically on first use of the translation feature and is cached in your browser. Subsequent translations are instant. The download only happens once per browser.
-        </div>
+        <div class="answer">Yes. The translation model (~350 MB) downloads automatically on first use of the translation feature and is cached in your browser. Subsequent translations are instant. The download only happens once per browser.</div>
       </details>
-
-      <details class="faq">
-        <summary>What does the free tier really allow?</summary>
-        <div class="faq-answer">
-          10 minutes of continuous extraction plus 50 single-frame captures per month, refilled on the 1st of each calendar month. No credit card required. Enough to handle a short video or a couple of partial episodes per month while you decide if SubClipper is right for you.
-        </div>
+      <details>
+        <summary>How do hour packs work?</summary>
+        <div class="answer">Packs are one-time purchases made inside the extension through Stripe, so there's no subscription to cancel. Your hours never expire and are only used once your free monthly time runs out. Hours are saved to your browser; if you reinstall or switch computers, email <a href="mailto:chris@daemonsolutions.tech">chris@daemonsolutions.tech</a> with your receipt and the support ID shown in the extension, and we'll move them over.</div>
       </details>
-
-      <details class="faq">
-        <summary>Can I cancel a paid plan anytime?</summary>
-        <div class="faq-answer">
-          Yes. Cancellations take effect at the end of your current billing period — you keep your remaining quota until then, with no further charges.
-        </div>
-      </details>
-
-      <details class="faq">
+      <details>
         <summary>Does SubClipper work on Firefox / Edge / Safari?</summary>
-        <div class="faq-answer">
-          Currently Chrome only. A Firefox version is on the roadmap depending on demand.
-        </div>
+        <div class="answer">Currently Chrome only. A Firefox version is on the roadmap depending on demand.</div>
       </details>
     </div>
   </div>
 </section>
 
-<!-- ============= FINAL CTA ============= -->
-<div class="container">
-  <div class="final-cta" id="install">
-    <h2>Open SubClipper on your next video.</h2>
-    <p>Free to start. No credit card. Add it to Chrome in two clicks.</p>
-    <a href="https://chromewebstore.google.com/detail/kkdnkljeibjbabbkkaafkaooogidkmdf" class="btn-primary">
-      Add to Chrome
-    </a>
+<!-- ============= CLOSING ============= -->
+<section id="install">
+  <div class="wrap closing">
+    <div>
+      <h2>Try it on your next video.</h2>
+      <p>Free every month. No signup, no credit card.</p>
+    </div>
+    <a href="https://chromewebstore.google.com/detail/kkdnkljeibjbabbkkaafkaooogidkmdf" class="btn btn-red">Add to Chrome</a>
   </div>
-</div>
+</section>
 
 <!-- ============= FOOTER ============= -->
 <footer>
-  <div class="container footer-inner">
+  <div class="wrap footer-inner">
     <div>© <span id="footer-year">2026</span> SubClipper</div>
     <div class="footer-links">
       <a href="privacy.html">Privacy Policy</a>
-      <a href="mailto:support@subclipper.com">Contact</a>
+      <a href="mailto:chris@daemonsolutions.tech">Contact</a>
       <a href="https://chromewebstore.google.com/detail/kkdnkljeibjbabbkkaafkaooogidkmdf">Chrome Web Store</a>
     </div>
   </div>
 </footer>
 
 <script>
+(() => {
   document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+  const $ = (id) => document.getElementById(id);
+
+  // ---------- Demo content ----------
+  // Each scene is a "video" in one language: [subtitle, English, Spanish].
+  // A translation into the line's own language is left empty and never shown.
+  const LINES = {
+    zh: [
+      ['你今天想去哪儿吃饭？', 'Where do you want to eat today?', '¿Dónde quieres comer hoy?'],
+      ['这家店我来过好几次了', "I've been here a few times.", 'He venido aquí varias veces.'],
+      ['我们先点两个菜吧', "Let's order two dishes first.", 'Pidamos dos platos primero.'],
+      ['这个真的太好吃了', 'This is really delicious.', 'Esto está buenísimo.'],
+    ],
+    en: [
+      ['Okay, so where are we going first?', '', 'Bueno, ¿adónde vamos primero?'],
+      ["I've never tried anything like this before.", '', 'Nunca he probado nada así.'],
+      ['Hold on, let me grab my camera.', '', 'Espera, déjame agarrar la cámara.'],
+      ['This view is unreal.', '', 'Esta vista es increíble.'],
+    ],
+    ko: [
+      ['이거 진짜 맛있다', 'This is really good.', 'Esto está muy rico.'],
+      ['우리 내일 다시 만나자', "Let's meet again tomorrow.", 'Veámonos otra vez mañana.'],
+      ['잠깐만, 다시 말해 줘', 'Wait, say that again.', 'Espera, dilo otra vez.'],
+      ['오늘 정말 재미있었어', 'Today was really fun.', 'Hoy fue muy divertido.'],
+    ],
+    es: [
+      ['No me lo puedo creer', "I can't believe it.", ''],
+      ['¿Dónde quieres cenar hoy?', 'Where do you want to have dinner today?', ''],
+      ['Mañana te lo cuento todo', "I'll tell you everything tomorrow.", ''],
+      ['Esto está buenísimo', 'This is delicious.', ''],
+    ],
+    ja: [
+      ['え、今なんて言ったの？', 'Wait, what did you just say?', 'Espera, ¿qué acabas de decir?'],
+      ['明日、駅で待ってるね', "I'll wait for you at the station tomorrow.", 'Mañana te espero en la estación.'],
+      ['それ、本当に知らなかった', "I honestly didn't know that.", 'De verdad no lo sabía.'],
+      ['ちょっと待って、考えさせて', 'Hold on, let me think.', 'Espera, déjame pensar.'],
+    ],
+  };
+  // Scene colors and where each "video" starts
+  const SCENES = {
+    zh: { colors: ['#8a4b52', '#3f5d7a', '#6e5a4a'], start: 3 * 60 + 12 },
+    en: { colors: ['#2f6f6a', '#b0823e', '#45456a'], start: 48 },
+    ko: { colors: ['#6b4a8a', '#b0567a', '#3a5a8a'], start: 7 * 60 + 5 },
+    es: { colors: ['#c0663a', '#4a7a4a', '#8a6a3a'], start: 2 * 60 + 20 },
+    ja: { colors: ['#3e6a8a', '#8a3e4e', '#5a6a4a'], start: 5 * 60 + 41 },
+  };
+  const SCENE_ORDER = ['zh', 'en', 'ko', 'es'];
+  const LINE_MS = 3200;
+  const VIDEO_LEN = 12 * 60 + 40;
+
+  const video = $('video');
+  const subtitle = $('subtitle');
+  const clock = $('clock');
+  const progress = $('progress');
+  const linesEl = $('lines');
+  const startBtn = $('start');
+  const status = $('status');
+  const statusText = $('status-text');
+  const langSel = $('lang');
+  const targetSel = $('target');
+  const capturesLeftEl = $('captures-left');
+
+  let lang = 'zh';
+  let idx = 0;
+  let t = SCENES.zh.start;      // video time in seconds
+  let autoCycle = true;         // rotate through SCENE_ORDER until the visitor picks a language
+  let switching = false;
+  let extracting = false;
+  let capturesLeft = 20;
+  let touched = false;
+  const transcript = [];         // { t, src }
+
+  const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s) % 60).padStart(2, '0')}`;
+
+  const addLine = () => {
+    if (switching) return;
+    const [src, en, es] = LINES[lang][idx];
+    const last = transcript[transcript.length - 1];
+    if (last && last.src === src) return; // same line still on screen
+    transcript.push({ t, src });
+
+    linesEl.querySelector('.empty')?.remove();
+    const li = document.createElement('li');
+    li.className = 'line';
+    li.innerHTML = '<time></time><div class="src"></div>';
+    li.querySelector('time').textContent = fmt(t);
+    li.querySelector('.src').textContent = src;
+    li.querySelector('.src').lang = lang;
+    for (const [code, text] of [['en', en], ['es', es]]) {
+      if (!text) continue;
+      const tr = document.createElement('div');
+      tr.className = 'tr';
+      tr.lang = code;
+      tr.textContent = text;
+      li.append(tr);
+    }
+    linesEl.append(li);
+    linesEl.scrollTop = linesEl.scrollHeight;
+  };
+
+  const showLine = () => {
+    subtitle.textContent = LINES[lang][idx][0];
+    subtitle.lang = lang;
+    if (extracting) addLine();
+  };
+
+  const clearAll = () => {
+    transcript.length = 0;
+    linesEl.innerHTML = '<li class="empty">Waiting for captures…</li>';
+  };
+
+  // Cut to a new "video" in another language
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const switchScene = (next) => {
+    switching = true;
+    video.classList.add('cut');
+    setTimeout(() => {
+      lang = next;
+      langSel.value = next;
+      const scene = SCENES[next];
+      scene.colors.forEach((c, i) => video.style.setProperty(`--c${i + 1}`, c));
+      t = scene.start;
+      idx = 0;
+      since = 0;
+      clearAll();
+      switching = false;
+      showLine();
+      video.classList.remove('cut');
+    }, reduceMotion ? 0 : 400);
+  };
+
+  // Video clock + subtitle changes
+  let since = 0;
+  setInterval(() => {
+    if (switching) return;
+    t = t >= VIDEO_LEN ? 0 : t + 0.25;
+    clock.textContent = fmt(t);
+    progress.style.width = `${(t / VIDEO_LEN) * 100}%`;
+    since += 250;
+    if (since >= LINE_MS) {
+      since = 0;
+      if (autoCycle && idx === LINES[lang].length - 1) {
+        switchScene(SCENE_ORDER[(SCENE_ORDER.indexOf(lang) + 1) % SCENE_ORDER.length]);
+      } else {
+        idx = (idx + 1) % LINES[lang].length;
+        showLine();
+      }
+    }
+  }, 250);
+  showLine();
+
+  // ---------- Panel controls ----------
+  const setExtracting = (on) => {
+    extracting = on;
+    startBtn.textContent = on ? 'Stop Subtitle Extraction' : 'Start Subtitle Extraction';
+    startBtn.classList.toggle('stop', on);
+    status.classList.toggle('live', on);
+    statusText.textContent = on ? 'Extracting' : 'Idle';
+    if (on) addLine();
+  };
+  startBtn.addEventListener('click', () => { touched = true; setExtracting(!extracting); });
+
+  $('capture').addEventListener('click', () => {
+    touched = true;
+    if (capturesLeft > 0) capturesLeftEl.textContent = --capturesLeft;
+    addLine();
+  });
+
+  const region = $('region');
+  let regionTimer;
+  $('edit-region').addEventListener('click', () => {
+    region.classList.add('on');
+    clearTimeout(regionTimer);
+    regionTimer = setTimeout(() => region.classList.remove('on'), 2200);
+  });
+
+  langSel.addEventListener('change', () => {
+    touched = true;
+    autoCycle = false;
+    switchScene(langSel.value);
+  });
+
+  targetSel.addEventListener('change', () => {
+    linesEl.dataset.target = targetSel.value;
+    $('translator-ready').hidden = !targetSel.value;
+  });
+
+  document.querySelectorAll('[data-clear]').forEach((b) => b.addEventListener('click', clearAll));
+
+  // Export: builds a real file from the demo transcript
+  const exportBtn = $('export');
+  const exportMenu = $('export-menu');
+  exportBtn.addEventListener('click', () => {
+    exportMenu.hidden = !exportMenu.hidden;
+    exportBtn.setAttribute('aria-expanded', String(!exportMenu.hidden));
+  });
+  const stamp = (s, sep) => {
+    const h = String(Math.floor(s / 3600)).padStart(2, '0');
+    const m = String(Math.floor(s / 60) % 60).padStart(2, '0');
+    const sec = String(Math.floor(s) % 60).padStart(2, '0');
+    const ms = String(Math.round((s % 1) * 1000)).padStart(3, '0');
+    return `${h}:${m}:${sec}${sep}${ms}`;
+  };
+  const build = (fmtName) => {
+    const rows = transcript.map((e, i) => ({ ...e, end: transcript[i + 1]?.t ?? e.t + LINE_MS / 1000 }));
+    if (fmtName === 'txt') return rows.map((r) => r.src).join('\n');
+    if (fmtName === 'csv') return 'start,end,text\n' + rows.map((r) => `${stamp(r.t, '.')},${stamp(r.end, '.')},"${r.src.replace(/"/g, '""')}"`).join('\n');
+    const sep = fmtName === 'srt' ? ',' : '.';
+    const cues = rows.map((r, i) => `${fmtName === 'srt' ? `${i + 1}\n` : ''}${stamp(r.t, sep)} --> ${stamp(r.end, sep)}\n${r.src}`).join('\n\n');
+    return fmtName === 'vtt' ? `WEBVTT\n\n${cues}` : cues;
+  };
+  exportMenu.addEventListener('click', (e) => {
+    const fmtName = e.target.dataset.fmt;
+    if (!fmtName) return;
+    exportMenu.hidden = true;
+    exportBtn.setAttribute('aria-expanded', 'false');
+    if (!transcript.length) return;
+    const url = URL.createObjectURL(new Blob([build(fmtName)], { type: 'text/plain;charset=utf-8' }));
+    const a = Object.assign(document.createElement('a'), { href: url, download: `subclipper-demo.${fmtName}` });
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+
+  // Start extraction once the demo is on screen, unless the visitor got there first
+  const io = new IntersectionObserver((entries) => {
+    if (!entries[0].isIntersecting) return;
+    io.disconnect();
+    setTimeout(() => { if (!touched && !extracting) setExtracting(true); }, 1200);
+  }, { threshold: 0.5 });
+  io.observe($('demo'));
+})();
 </script>
 
 </body>
